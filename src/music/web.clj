@@ -1,4 +1,4 @@
-(ns clojure-getting-started.web
+(ns music.web
   (:require [compojure.core :refer :all]
             [compojure.handler :refer [site]]
             [compojure.route :as route]
@@ -6,6 +6,7 @@
             [ring.adapter.jetty :as jetty]
             [environ.core :refer [env]]
             [amazonica.aws.s3 :as s3]
+            [music.db :as db]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.json :refer [wrap-json-response]]))
 
@@ -24,8 +25,11 @@
   (GET "/" []
        (slurp (io/resource "index.html")))
   (wrap-json-response
-    (GET "/sign-s3" [file-name file-type]
+    (GET "/api/sign-s3" [file-name file-type]
         (sign-s3 file-name file-type)))
+  (wrap-json-response
+    (GET "/api/search/composers" [composer]
+        (db/search-by-composer composer)))
   (ANY "*" []
        (route/not-found (slurp (io/resource "404.html")))))
 
